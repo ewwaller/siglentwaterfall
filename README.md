@@ -1,16 +1,4 @@
-  </head><body>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="nav-item nav-item-0"><a href="index.html#document-index">Siglent Waterfall 0.1 documentation</a> &#187;</li> 
-      </ul>
-    </div>  
-
-    <div class="document">
-      <div class="documentwrapper">
-        <div class="bodywrapper">
-          <div class="body" role="main">
-            
+<body>
   <div class="section" id="siglentwaterfall">
 <h1>SiglentWaterfall<a class="headerlink" href="#siglentwaterfall" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="introduction">
