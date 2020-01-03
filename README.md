@@ -365,33 +365,6 @@ are system dependent.  These are not automatically installed.</p>
 </div></blockquote>
 </div>
 <div class="section" id="indices-and-tables">
-<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
-<blockquote>
-<div><p><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a>
-<a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a>
-<a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></p>
-</div></blockquote>
-</div>
 
-
-          </div>
-        </div>
-      </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
-        <div class="sphinxsidebarwrapper">
-        </div>
-      </div>
-      <div class="clearer"></div>
-    </div>
-    <div class="related" role="navigation" aria-label="related navigation">
-      <h3>Navigation</h3>
-      <ul>
-        <li class="nav-item nav-item-0"><a href="index.html#document-index">Siglent Waterfall 0.1 documentation</a> &#187;</li> 
-      </ul>
-    </div>
-    <div class="footer" role="contentinfo">
-        &#169; Copyright 2020, Eric Waller.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 2.2.1.
-    </div>
   </body>
 </html>
