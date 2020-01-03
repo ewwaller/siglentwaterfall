@@ -1,0 +1,481 @@
+.\" Man page generated from reStructuredText.
+.
+.TH "SIGLENTWATERFALL" "1" "Jan 03, 2020" "" "Siglent Waterfall"
+.SH NAME
+siglentwaterfall \- Siglent Waterfall 0.1
+.
+.nr rst2man-indent-level 0
+.
+.de1 rstReportMargin
+\\$1 \\n[an-margin]
+level \\n[rst2man-indent-level]
+level margin: \\n[rst2man-indent\\n[rst2man-indent-level]]
+-
+\\n[rst2man-indent0]
+\\n[rst2man-indent1]
+\\n[rst2man-indent2]
+..
+.de1 INDENT
+.\" .rstReportMargin pre:
+. RS \\$1
+. nr rst2man-indent\\n[rst2man-indent-level] \\n[an-margin]
+. nr rst2man-indent-level +1
+.\" .rstReportMargin post:
+..
+.de UNINDENT
+. RE
+.\" indent \\n[an-margin]
+.\" old: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.nr rst2man-indent-level -1
+.\" new: \\n[rst2man-indent\\n[rst2man-indent-level]]
+.in \\n[rst2man-indent\\n[rst2man-indent-level]]u
+..
+.SH INTRODUCTION
+.sp
+This program obtains trace information from a Siglent oscilloscope and
+displays them as a three dimension plot displaying a scrolling history
+of recent traces.  The plot can be rotated and zoomed in our out
+using point devices.
+.sp
+The application is written in \fIPython3\fP on and uses multi\-programming
+techniques to allow the program to use multiple cores.
+.sp
+Communication with the oscilloscope uses the \fIvisa\fP instrument control
+infrastructure.
+.SH USAGE
+.sp
+To start the program from the command line, see the following usage.:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+Usage: siglent [OPTIONS]
+
+  Siglent
+
+  Display a YT display and (optionally) a waterfall display of scope traces
+  obtained from an SDS 1204X\-E oscilloscope.
+
+Options:
+  \-r, \-\-rows INTEGER       Rows in waterfall display (number of traces)
+  \-c, \-\-cols INTEGER       columns in waterfall display (samples/trace)
+  \-\-waterfall              Show the 3D Display
+  \-\-channel TEXT           Scope channel to capture (default=C1)
+  \-n, \-\-name TEXT          VISA Address of the oscilloscope  [required]
+  \-v, \-\-verbose            Be verbose.  Invoke twice for more verbosity
+  \-L, \-\-log\-file PATH      Log file Name.
+  \-t, \-\-timeout INTEGER    Foreground process timeout in seconds (debug only)
+  \-b, \-\-bgtimeout INTEGER  Background process timeout in seconds (debug only)
+  \-\-help                   Show this message and exit.
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+For example:
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+siglent \-n tcpip::192.168.1.201 \-vv \-\-waterfall
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Will start the \fISiglent Waterfall\fP program reading from the
+instrument at IP Address 192,168.1.201, being extremely verbose (debug
+level), and will display both the 2D and 3D displays.
+.INDENT 0.0
+.INDENT 3.5
+.sp
+.nf
+.ft C
+siglent \-n tcpip::192.168.1.201 \-v
+.ft P
+.fi
+.UNINDENT
+.UNINDENT
+.sp
+Will start the \fISiglent Waterfall\fP program reading from the
+instrument at IP Address 192,168.1.201, being a little verbose (info
+level), and will display only 2D and 3D display.
+.SH MAIN
+.SH BACKGROUND
+.sp
+Generate a stream of vectors read from a siglent oscilloscope
+.INDENT 0.0
+.TP
+.B class background.Acquire(address, channel, cols)
+Acquire traces from the oscilloscope
+.sp
+This class sets up the oscilloscope, then reads data from it
+continuously, posting those trace information to a queue that is
+processed by the main program.  This code is run in a multiprocess
+environment allowing it to run independently of the main program.
+Hopefully, it runs on its own core.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBaddress\fP (\fIstr\fP) – The \fIvisa\fP address of the instrument
+.IP \(bu 2
+\fBchannel\fP (\fIstr\fP) – The channel to read from the scope.  Defaults
+to ‘C1’.  Values can be \fIC1, C2, C3, C4\fP or \fImath\fP
+.IP \(bu 2
+\fBcols\fP (\fIint\fP) – The number of points to place in each vector.
+This controls the \fIskip factor\fP in the waveform
+setup. This decimates the 14K (or more) points in
+the scope memory down to a manaeable number of
+points
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B update()
+Read the next trace from the oscillocope
+.sp
+Read parameters as to the format and scale of the trace, read
+the raw data points, apply scale and offset information to
+the data
+.INDENT 7.0
+.TP
+.B Returns: \fIFalse\fP if there is an error.  Otherwise, return a
+tuple of two equal size lists of float.  The first
+element is a list of \fIfloat\fP representing time
+values, and a list of \fIfloat\fP representing voltages.
+.UNINDENT
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.TP
+.B exception background.ScopeInitializationError
+.UNINDENT
+.INDENT 0.0
+.TP
+.B background.main(cols, timeout, address, channel, pipe)
+Stream traces from a Siglent oscilloscope to a pipe.
+.sp
+Read traces from a Siglent 1204x\-E oscilloscope and stream those
+traces to the main program through a pipe.  We also will receive
+commands through that pipe.  Handle those commands and respnd to
+those cmmands through the pipe as well.  Commands and responses to
+those commands will be of the type ‘Message’ from the class
+defined above.  The traces are sent as a 2\-tuple of lists.  The
+first list represents the time values of the samples, while the
+second list represents the voltages at the time values.
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBcols\fP (\fIint\fP) – The expected size of the lists to be sent through
+the pipe.
+.IP \(bu 2
+\fBtimeout\fP (\fIint\fP) – The maximum time this process is to run.  0
+implys no timeout
+.IP \(bu 2
+\fBaddress\fP (\fIstr\fP) – The \fIvisa\fP address of the oscilloscope
+.IP \(bu 2
+\fBchannel\fP (\fIstr\fP) – The name of the oscilloscope channel to stream.
+.IP \(bu 2
+\fBpipe\fP (\fIpipe\fP) – The pipe through which data are communicated to
+and from the main program.
+.UNINDENT
+.TP
+.B Returns
+\fINone\fP
+.TP
+.B Return type
+None
+.UNINDENT
+.UNINDENT
+.SH LOG
+.INDENT 0.0
+.TP
+.B log.setLog(LogLevelStr)
+Set the log level to be used during this run.
+This program uses logging to provide warning, info, and debug
+level messages. Wwarnings are always enabled.  info level messages
+are considered to be “Verbose”.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBLogLevelStr\fP – A string representing on of the members of logging that
+define log levels (“CRITICAL”, DEBUG”, “ERROR”, “FATAL”
+(“INFO”, “NOTSET”, WARN, “WARNING”)
+.UNINDENT
+.UNINDENT
+.SH TWODGRAPH
+.INDENT 0.0
+.TP
+.B class TwoDGraph.Graph(rows, title=\(aqYT Display\(aq)
+Create a window in which to display the YT display
+.sp
+The window contains two grids and the YT display.  The axes are
+time, and amplitude.
+.INDENT 7.0
+.TP
+.B Parameters
+\fBrows\fP (\fIint\fP) – Defines the horizontal size of plot in samples.
+.TP
+.B Keyword Arguments
+\fBtitle\fP (\fIstr\fP) – The name of the window. Defaults to \fIYT Display\fP
+.UNINDENT
+.INDENT 7.0
+.TP
+.B np = <module \(aqnumpy\(aq from \(aq/usr/lib/python3.8/site\-packages/numpy/__init__.py\(aq>
+.UNINDENT
+.INDENT 7.0
+.TP
+.B pg = <module \(aqpyqtgraph\(aq from \(aq/usr/lib/python3.8/site\-packages/pyqtgraph/__init__.py\(aq>
+.UNINDENT
+.INDENT 7.0
+.TP
+.B update(data)
+Obtain next chunk of data, update the waterfall display
+.UNINDENT
+.UNINDENT
+.SH THREEDGRAPH
+.INDENT 0.0
+.TP
+.B class ThreeDGraph.Graph(rows, cols, title=\(aq3D Waterfall Display\(aq, distance=50)
+Create a window in which to display the 3d display
+.sp
+The window contains two grids and the 3d display.  The axes are
+time (history of former traces) , time (for a given trace) and
+amplitude of the points in the trace.  The grids are on the
+(history)time\-amplitude and (history) time\-time axes.  No grid is
+generated for the (trace) time\-amplitude axes so as not to occlude
+the line\-of\-site of the display
+.INDENT 7.0
+.TP
+.B Parameters
+.INDENT 7.0
+.IP \(bu 2
+\fBrows\fP (\fIint\fP) – Defines the size of the waterfall in rows.  This
+value represents the numper of points per trace.
+.IP \(bu 2
+\fBcols\fP (\fIint\fP) – Defines the size of the waterfall in columns.  This
+value represents the depth of the storage.  This
+is the number of traces to display
+.UNINDENT
+.TP
+.B Keyword Arguments
+.INDENT 7.0
+.IP \(bu 2
+\fBtitle\fP (\fIstr\fP) – The name of the waterfall window.  Defaults to
+\fI3d Waterfall Display\fP
+.IP \(bu 2
+\fBdistance\fP (\fIint\fP) – The inital distance of the observer from the
+3D display
+.UNINDENT
+.UNINDENT
+.INDENT 7.0
+.TP
+.B np = <module \(aqnumpy\(aq from \(aq/usr/lib/python3.8/site\-packages/numpy/__init__.py\(aq>
+.UNINDENT
+.INDENT 7.0
+.TP
+.B pg = <module \(aqpyqtgraph\(aq from \(aq/usr/lib/python3.8/site\-packages/pyqtgraph/__init__.py\(aq>
+.UNINDENT
+.INDENT 7.0
+.TP
+.B update(data)
+Obtain next chunk of data, update the waterfall display
+.UNINDENT
+.UNINDENT
+.sp
+This program is licensed under the MIT license.
+.sp
+Copyright (c) 2020 Eric Waller
+.sp
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the “Software”), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+.sp
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+.sp
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+.sp
+The following modules, not provided by Python or the \fISiglent Waterfall\fP
+repository, are required at run time and are installed automatically
+by \fIpip\fP:
+.TS
+center;
+|l|l|l|.
+_
+T{
+Module Name
+T}	T{
+Version
+T}	T{
+Description
+T}
+_
+T{
+Python
+T}	T{
+3.8
+T}	T{
+Interpreter
+T}
+_
+T{
+Click
+T}	T{
+7.0
+T}	T{
+Command line interface
+T}
+_
+T{
+numpy
+T}	T{
+17.4
+T}	T{
+Vector Math
+T}
+_
+T{
+PyOpenGL
+T}	T{
+3.1.0
+T}	T{
+3D graphics engine
+T}
+_
+T{
+PyQt5
+T}	T{
+5.13.2
+T}	T{
+GUI subsystem
+T}
+_
+T{
+PyQt5\-sip
+T}	T{
+12.7.0
+T}	T{
+GUI subsystem
+T}
+_
+T{
+pyqtgraph
+T}	T{
+0.10.0
+T}	T{
+graphing package
+T}
+_
+T{
+pyVISA
+T}	T{
+1.10.1
+T}	T{
+Instrument control
+T}
+_
+T{
+scipy
+T}	T{
+1.3.3
+T}	T{
+Vector math
+T}
+_
+.TE
+.sp
+This program does use \fISphinx\fP to automatically generate
+documentation from the \fIdoc\fP strings in the Python code itself.
+Sphinx can create man files, HTML files, pdf files, and others.  This
+program uses the HTML documentation for the web application and pdf
+files for written manuals.  It also generates man files for reference
+when running on Linux from a command line.
+.sp
+The following top level modules are required to build the documentation for this
+program suite.  These modules may have dependencies of their own and
+are system dependent.  These are not automatically installed.
+.TS
+center;
+|l|l|l|l|.
+_
+T{
+Module Name
+T}	T{
+Version
+T}	T{
+Organization
+T}	T{
+Description
+T}
+_
+T{
+Sphinx
+T}	T{
+1.8.1
+T}	T{
+\fI\%http://www.sphinx\-doc.org/\fP
+T}	T{
+Documentation Generator
+T}
+_
+T{
+texlive
+T}	T{
+2018.48568
+T}	T{
+\fI\%http://tug.org/\fP
+T}	T{
+Web Template Engine
+T}
+_
+.TE
+.sp
+To build the HTML documentation, from the root directory, run:
+.INDENT 0.0
+.INDENT 3.5
+\fImake html\fP
+.UNINDENT
+.UNINDENT
+.sp
+To build the pdf documentation, from the root directory, run:
+.INDENT 0.0
+.INDENT 3.5
+\fImake latexpdf\fP
+.UNINDENT
+.UNINDENT
+.sp
+To build the \fIman\fP documentation, from the root directory, run:
+.INDENT 0.0
+.INDENT 3.5
+\fImake man\fP
+.UNINDENT
+.UNINDENT
+.INDENT 0.0
+.INDENT 3.5
+genindex
+modindex
+search
+.UNINDENT
+.UNINDENT
+.SH AUTHOR
+Eric Waller
+.SH COPYRIGHT
+2020, Eric Waller
+.\" Generated by docutils manpage writer.
+.

@@ -1,0 +1,57 @@
+\begin{sphinxtheindex}
+\let\bigletter\sphinxstyleindexlettergroup
+\let\spxpagem \sphinxstyleindexpagemain
+\let\spxentry \sphinxstyleindexentry
+\let\spxextra \sphinxstyleindexextra
+
+  \bigletter {\sphinxsymbolsname}
+  \item \spxentry{\_\_main\_\_}\spxextra{module}, \hyperpage{5}
+
+  \indexspace
+  \bigletter A
+  \item \spxentry{Acquire}\spxextra{class in background}, \hyperpage{5}
+
+  \indexspace
+  \bigletter B
+  \item \spxentry{background}\spxextra{module}, \hyperpage{5}
+
+  \indexspace
+  \bigletter G
+  \item \spxentry{Graph}\spxextra{class in ThreeDGraph}, \hyperpage{6}
+  \item \spxentry{Graph}\spxextra{class in TwoDGraph}, \hyperpage{6}
+
+  \indexspace
+  \bigletter L
+  \item \spxentry{log}\spxextra{module}, \hyperpage{6}
+
+  \indexspace
+  \bigletter M
+  \item \spxentry{main()}\spxextra{in module background}, \hyperpage{5}
+
+  \indexspace
+  \bigletter N
+  \item \spxentry{np}\spxextra{ThreeDGraph.Graph attribute}, \hyperpage{7}
+  \item \spxentry{np}\spxextra{TwoDGraph.Graph attribute}, \hyperpage{6}
+
+  \indexspace
+  \bigletter P
+  \item \spxentry{pg}\spxextra{ThreeDGraph.Graph attribute}, \hyperpage{7}
+  \item \spxentry{pg}\spxextra{TwoDGraph.Graph attribute}, \hyperpage{6}
+
+  \indexspace
+  \bigletter S
+  \item \spxentry{ScopeInitializationError}, \hyperpage{5}
+  \item \spxentry{setLog()}\spxextra{in module log}, \hyperpage{6}
+
+  \indexspace
+  \bigletter T
+  \item \spxentry{ThreeDGraph}\spxextra{module}, \hyperpage{6}
+  \item \spxentry{TwoDGraph}\spxextra{module}, \hyperpage{6}
+
+  \indexspace
+  \bigletter U
+  \item \spxentry{update()}\spxextra{background.Acquire method}, \hyperpage{5}
+  \item \spxentry{update()}\spxextra{ThreeDGraph.Graph method}, \hyperpage{7}
+  \item \spxentry{update()}\spxextra{TwoDGraph.Graph method}, \hyperpage{6}
+
+\end{sphinxtheindex}
